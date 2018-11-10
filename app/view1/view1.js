@@ -30,18 +30,32 @@ angular.module('myApp.view1', ['ngRoute'])
 
     var window = angular.element($window);
 
+    var showImage = function () {
+        $scope.picture = "./view1/cup.jpg"; // todo: set decrypted image here
+    };
+
+    var hideImage = function () {
+        $scope.picture = "nothing"; // todo: set encrypted image here
+    };
+
     window.on("focus", function() {
         console.log("focus in");
-        $scope.$apply(function () {
-            $scope.picture = "./view1/cup.jpg"; // todo: set decrypted image here
-        });
+        $scope.$apply(showImage);
     });
 
     window.on("blur", function() {
         console.log("focus out");
-        $scope.$apply(function () {
-            $scope.picture = "nothing"; // todo: set encrypted image here
-        });
+        $scope.$apply(hideImage);
+    });
+
+    window.on("keydown", function() {
+        console.log("key pressed");
+        $scope.$apply(hideImage);
+    });
+
+    window.on("keyup", function() {
+        console.log("key pressed");
+        $scope.$apply(hideImage);
     });
 
     // Decrypting the image
