@@ -11,6 +11,18 @@ angular.module('myApp.view1', ['ngRoute'])
 
 .controller('View1Ctrl', function($scope, $window) {
 
+    // Open file
+    /*
+    function getFile(fileName) {
+        console.log("here")
+        fileReader.readAsText($scope.file, $scope)
+            .then( function(result) {
+                console.log(result)
+            }
+        )
+    }
+    */
+
     // Loading the Key File
     function loadFile(filePath) {
         var result = null;
@@ -19,19 +31,55 @@ angular.module('myApp.view1', ['ngRoute'])
         xmlhttp.send();
         if (xmlhttp.status === 200) {
             result = xmlhttp.responseText;
-            console.log("load key success")
         }
-        console.log("File: " + result);
         return result;
     }
 
-    loadFile("./view1/file.txt");
-    $scope.picture = "./view1/cup.jpg";
+    var raw_key = loadFile("./view1/file.txt")
+    var raw_encryptedImage = loadFile("./view1/encrypted.jpg");
+
+    //console.log(raw_key)
+    //console.log(raw_encryptedImage)
+
+    var key = CryptoJS.enc.Base64.parse(raw_key)
+    var decrypted_image = CryptoJS.AES.decrypt(raw_encryptedImage, key, {
+        mode: CryptoJS.mode.ECB,
+        padding: CryptoJS.pad.Pkcs7
+    });
+    var ans =  CryptoJS.enc.Base64.stringify( decrypted_image )
+    console.log("decrypted string is: " + ans)
+
+    $scope.image = "data:image/png;base64, " + ans
+
+
+    /* WORKING TEXT VERSION
+    var key = CryptoJS.enc.Base64.parse("VnKai2TUASBcWOkHfIsXGg==")
+    var decrypted = CryptoJS.AES.decrypt("MftmgRSZQb3jDk+hAaz98w==", key, {
+        mode: CryptoJS.mode.ECB,
+        padding: CryptoJS.pad.Pkcs7
+    });
+    var ans = decrypted.toString(CryptoJS.enc.Utf8)
+    console.log("decrypted string is: " + ans)
+    */
+
+    /*
+    var encrypt = CryptoJS.AES.encrypt("message", key)
+    var ans = encrypt.toString()
+    console.log(ans)
+    var trydecrypt = CryptoJS.AES.decrypt(ans, key)
+    var ans2 = trydecrypt.toString(CryptoJS.enc.Utf8)
+    console.log(ans2)
+    //console.log(decrypted)
+    */
+
+    //$scope.picture = "./view1/cup.jpg";
+    $scope.picture = "data:image/png;base64, " + ans
 
     var window = angular.element($window);
 
     var showImage = function () {
-        $scope.picture = "./view1/cup.jpg"; // todo: set decrypted image here
+        $scope.picture = "data:image/png;base64, " + ans
+        //$scope.picture = "./view1/cup.jpg"; // todo: set decrypted image here
     };
 
     var hideImage = function () {
@@ -58,6 +106,7 @@ angular.module('myApp.view1', ['ngRoute'])
         $scope.$apply(hideImage);
     });
 
+    /*
     // Decrypting the image
     var data = new XMLHttpRequest();
     // Put encrypted image URL inside
@@ -70,5 +119,6 @@ angular.module('myApp.view1', ['ngRoute'])
         }
     };
     data.send();
+    */
 });
 
